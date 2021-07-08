@@ -1,6 +1,10 @@
+#!/bin/bash
+set -e -u -x
+
+# Installing hdf5 dependency
 echo "Installing zlib with yum"
-HDF5_VERSION=1.12.0
-HDF5_DIR="/usr/local"
+export HDF5_VERSION=1.12.0
+export HDF5_DIR="/usr/local"
 yum -y install zlib-devel
 
 pushd /tmp
@@ -23,3 +27,22 @@ rm -r hdf5-$HDF5_VERSION
 rm hdf5-$HDF5_VERSION.tar.gz
 
 yum -y erase zlib-devel
+
+# Building wheels
+cd /src/
+
+# Create binary wheels
+python=`ls /opt/python/cp*/bin/pip |grep "cp3[7]"`
+for bindir in $python; do
+    "$bindir" wheel /src/ -w wheelhouse/
+done
+
+ls -lrt wheelhouse/
+
+# Normalize resulting binaries to a common format
+for whl in wheelhouse/tbbharaj_h5py-*.whl; do
+    auditwheel repair "$whl" -w wheelhouse/
+done
+
+#twine --version
+#twine check --strict dist/*

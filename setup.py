@@ -154,7 +154,7 @@ if os.name == 'nt':
     package_data['h5py'].append('*.dll')
 
 setup(
-  name = 'h5py',
+  name = 'tbbharaj-h5py',
   version = VERSION,
   description = short_desc,
   long_description = long_desc,

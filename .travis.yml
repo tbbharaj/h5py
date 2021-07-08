@@ -19,19 +19,25 @@ cache:
 env:
   global:
     - HDF5_CACHE_DIR=$HOME/.cache/hdf5
+    - ANACONDA_ORG="test-upload"
+    # PYPI_USER
+    #- secure: "Xejg5qGnAyo3G+/TaaAr1uHzDv9GLo3mxi6Aw/hZc9gF9lYix1TvkfE6GEBKdPgSLJSqF9NJrwKTt37XH1DjSRLG+qw6Bt1goi5Bkugdk+SC5qmMkvAoG0EKyD119WS4ObrpzqAFcOQqG+4F6iDkSuJLA+dzA3yAzTME4pkhr/2dn0krOSqIcTlgifPwhEaMgo//WRT2dEBM5dWoehXsEMD7VMOUyC0DlV15lKTPKSzTrDEUPU7UFnXgIqZM/brEPbWPQr5Jzgu7BeBk6bmPiiYeh28Cq2juzOzA+JWcGgJmXOfsImYwYuAWZrf0pkE0uQjLySvIBKT7phJv05eNqIxmv/wHK1BPcyMV+2IgFR4+f5ty6C4VUV0hT0HvHr3pMa/8A/5wSNCShEAMTHrwPM5VPWFJtUKTtS5+wwNQDI39MLk/vr9ZTo+y3WJHPaRR0nRpbA3nXFHSqoJJunoMyeI8x9cXZvJ9IENMxGuo3CfBT5RGZamfqSTgn6NjL51ArIMKpvUfm3tXTtlvCHenED1ZQeJI1nWZEalxl8pTyAZoA8S1+h8wraZrUPzhM0QuVpw7vZQeOYu2VSdHO46yxUWoQyb+JWrDTN7EC8vOl7QQzIQlqOWJB5uDJD7UlKKtneTHJrdfXvGxS/hf+Y+hFZK7r+/PDPS6aQjSNDyy+js="
+    # PYPI_PASSWORD
+    #- secure: "iEHYaOC/yivDupsbRzohWYCwFMZbCfT2hYOM96akQtOfd1d37rqFCFjDKr3BNyvHyHzj+uNQ7IblynWAqu3cax2Z8b9YuIFXFAslD76IIgeIhxmi8jPtamMK0NBXam/LEL49EIVXUnwVZrWjnLcJxVaBHGS/9Ft3zWP5Gspa4G1yAJDhNfs+jrFipxO4DOBie9mGI2jFdbFRgcCYoY6Jo4y95zxUG1YF5e+8sUobLoBgVqyaJP4SP/Zu/4CEWMfJev8EjLBzzkoPwOU+hC09qwf2FQCvBXFrudpjPpY23WDFeKf+LcMoW9tIoUmP6UJcQibqHeidimrbo9jST0+wTo1NYjrvriKrlMho/QS4iYkd5N6DGUrhSXEMSiqfdMjVGDZ00wvCsT3DwqE9eG7K+Kw09enchjcZcggZIt9crqZPJg3GMdSwPYTlRpf2OQmE4OHL3pN5dSH5Es/sb0X1G6JQgB/2Ia9Aks2ywYEdzUZhbMqfLVx75bVS4bLfYMAMhE/j7NxpYaUlVkFhz3srLhnrYyAcvCQ6XF4cSeFfxD1ie62/qFIF/QH5u76t91uURHygvNdyJCNHhVJnnWgN9kPsJxfyfdOC2Dnrz/jJcw5irsgQVO2/K4iyGyBVoOqwwpymjoCkxB8capEoLRNLcwyQqCTBnMtGykyRYF2I7FA="
 
+    - secure: IEU1UdM1zo1V9s/R8NZ8GLXz8/ODVo6lEXLRJthlxBdIM64JoyIFzU5tQl8VSvykzga1nfL57cPNAkGDE6eJZMkjYMjbehrBLJqqAJXWK/9+t1UJ1L91Z6Y9b+DOkTcUJMAKv5eJAUdia9F2ITKBKpO7FzATLf6bZrF4LWMKYhg=
 matrix:
   include:
     # needed to work around https://github.com/travis-ci/travis-ci/issues/4794
     # TODO: We should see if we can replace this with installing python via pyenv # based on toxenv
     # Test on ppc64le
-    - python: 3.7
-      env:
-      - TOXENV=py37-test-deps
-      - HDF5_VERSION=1.10.5
-      - HDF5_DIR=$HDF5_CACHE_DIR/$HDF5_VERSION
-      - H5PY_ENFORCE_COVERAGE=yes
-      os: linux-ppc64le
+    # - python: 3.7
+    #  env:
+    #  - TOXENV=py37-test-deps
+    #  - HDF5_VERSION=1.10.5
+    #  - HDF5_DIR=$HDF5_CACHE_DIR/$HDF5_VERSION
+    #  - H5PY_ENFORCE_COVERAGE=yes
+    #  os: linux-ppc64le
     - os: linux
       python: 3.7
       virt: vm
@@ -42,26 +48,67 @@ matrix:
         - HDF5_VERSION=1.10.5
         - HDF5_DIR=$HDF5_CACHE_DIR/$HDF5_VERSION
         - H5PY_ENFORCE_COVERAGE=yes
-    - os: linux
-      python: 3.8
-      virt: vm
-      group: edge
-      arch: arm64
-      env:
-        - TOXENV=py38-test-deps
-        - HDF5_VERSION=1.10.5
-        - HDF5_DIR=$HDF5_CACHE_DIR/$HDF5_VERSION
-        - H5PY_ENFORCE_COVERAGE=yes
-before_install:
+        - PLAT=aarch64
+        - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64:latest
+  before_install:
   # - export PATH=/usr/lib/ccache:$PATH
   - ccache -s
 
 install:
-  - pip install -U tox codecov virtualenv
-  - ci/get_hdf5_if_needed.sh
-  - ls -lRa $HDF5_CACHE_DIR
-script:
-  - tox
+  #- pip install -U tox codecov virtualenv
+  #- ci/get_hdf5_if_needed.sh
+  #- ls -lRa $HDF5_CACHE_DIR
+  - if [[ $PLAT == aarch64 ]]; then uname -m; docker pull $DOCKER_IMAGE; fi
 
-after_success:
-  - python ci/upload_coverage.py
+script:
+  #- tox
+  - pip install twine
+  - twine --version
+  #- twine check --strict dist/*
+  - if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE /src/ci/build-arm64-wheels.sh; fi
+
+#after_success:
+  #- python ci/upload_coverage.py
+  # - pip install git+https://github.com/Anaconda-Platform/anaconda-project
+  # - pip install git+https://github.com/Anaconda-Platform/anaconda-client
+  #- ls -lrt wheelhouse
+  #- echo ${ANACONDA_SECRET}
+  #- echo $ANACONDA_SECRET
+  #- echo ${ANACONDA_ORG}
+  #- echo $ANACONDA_ORG  
+  #- anaconda -t ${ANACONDA_SECRET} upload --force -u ${ANACONDA_ORG} ${TRAVIS_BUILD_DIR}/wheelhouse/tbbharaj_h5py-*.whl
+  #- twine upload -u $PYPI_USER -p $PYPI_PASSWORD --skip-existing wheelhouse/*
+  # trigger an upload to the shared ecosystem
+  # infrastructure at: https://anaconda.org/scipy-wheels-nightly
+  # for cron jobs only (restricted to master branch once
+  # per week)
+  # MATPLOTLIB_WHEELS_NIGHTLY is a secret token
+  # used in Travis CI config, originally
+  # generated at anaconda.org for scipy-wheels-nightly
+  #- if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
+  #      source extra_functions.sh
+  #      for f in wheelhouse/*.whl; do rename_wheel $f; done;
+  #      ANACONDA_ORG="scipy-wheels-nightly"
+  #      pip install git+https://github.com/Anaconda-Server/anaconda-client;
+  #      anaconda -t ${SCIPY_WHEELS_NIGHTLY_ACCESS} upload --force -u ${ANACONDA_ORG} ${TRAVIS_BUILD_DIR}/wheelhouse/*.whl;
+  #  fi
+  # for merges (push events) we use the staging area instead;
+  # MATPLOTLIB_STAGING_UPLOAD_TOKEN is a secret token used in Travis
+  # CI config, originally generated at anaconda.org for
+  # multibuild-wheels-staging
+  #- if [ "$TRAVIS_EVENT_TYPE" == "push" ]; then
+  #      ANACONDA_ORG="multibuild-wheels-staging"
+  #      pip install git+https://github.com/Anaconda-Server/anaconda-client;
+  #      anaconda -t ${MULTIBUILD_WHEELS_STAGING_ACCESS} upload --force -u ${ANACONDA_ORG} ${TRAVIS_BUILD_DIR}/wheelhouse/*.whl;
+  # fi
+
+deploy:
+  provider: pypi
+  user: $PYPI_USER
+  server: https://test.pypi.org/legacy/ # Remove for deployment to official PyPi repo
+  password: $PYPI_PASSWORD
+  on:
+    #repo: tbbharaj/h5py
+    all_branches: true
+    branch: tbbharaj/upload-wheels
+
