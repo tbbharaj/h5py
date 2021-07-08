@@ -19,7 +19,7 @@ make install
 popd
 
 echo "Cleaning up unnecessary files"
-rm -r hdf5-$HDF5_VERSION
-rm hdf5-$HDF5_VERSION.tar.gz
+#rm -r hdf5-$HDF5_VERSION
+#rm hdf5-$HDF5_VERSION.tar.gz
 
-yum -y erase zlib-devel
+#yum -y erase zlib-devel
