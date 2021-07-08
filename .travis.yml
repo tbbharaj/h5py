@@ -35,7 +35,7 @@ matrix:
     #  os: linux-ppc64le
     
     - os: linux
-      python: 3.6
+      #python: 3.6
         #virt: vm
         #group: edge
       arch: arm64
@@ -49,7 +49,7 @@ matrix:
         #- H5PY_ENFORCE_COVERAGE=yes
         - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64:latest
         - PLAT=aarch64
-        - PYTHON=cp36-cp36m
+        #- PYTHON=cp36-cp36m
     - os: linux
       python: 3.7
         #virt: vm
