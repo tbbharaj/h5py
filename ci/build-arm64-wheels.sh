@@ -35,7 +35,6 @@ cd /src/
 
 # Create binary wheels
 /opt/python/cp37-cp37m/bin/pip wheel /src/ -w wheelhouse/
-/opt/python/cp36-cp36m/bin/pip wheel /src/ -w wheelhouse/
 /opt/python/cp38-cp38/bin/pip wheel /src/ -w wheelhouse/
 /opt/python/cp39-cp39/bin/pip wheel /src/ -w wheelhouse/
 #/opt/python/${PYTHON}/bin/pip wheel /src/ -w wheelhouse/

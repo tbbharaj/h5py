@@ -42,7 +42,8 @@ matrix:
         - HDF5_VERSION=1.10.5
         - HDF5_DIR=$HDF5_CACHE_DIR/$HDF5_VERSION
         - H5PY_ENFORCE_COVERAGE=yes
-
+        - PLAT=aarch64
+        - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64:latest
     - os: linux
       #     python: 3.7
         #virt: vm
@@ -59,35 +60,7 @@ matrix:
         - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64:latest
         - PLAT=aarch64
           #- PYTHON=cp37-cp37m
-    - os: linux
-      python: 3.8
-      #virt: vm
-      #group: edge
-      arch: arm64
-      env:
-        - TOXENV=py38-test-deps
-        - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64:latest
-        - PLAT=aarch64
-        - PYTHON=cp38-cp38
-        #- HDF5_VERSION=1.10.5
-        #- HDF5_DIR=$HDF5_CACHE_DIR/$HDF5_VERSION
-        #- H5PY_ENFORCE_COVERAGE=yes
-    - os: linux
-      python: 3.9
-        #virt: vm
-        #group: edge
-      arch: arm64
-      #install: if [[ $PLAT == aarch64 ]]; then uname -m; docker pull $DOCKER_IMAGE; fi
-      # script: if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE /src/ci/build-arm64-wheels.sh; fi
-      #script: ci/build-arm64-wheels.sh
-      env:
-        - TOXENV=py39-test-deps
-        #- HDF5_VERSION=1.10.5
-        #- HDF5_DIR=$HDF5_CACHE_DIR/$HDF5_VERSION
-        #- H5PY_ENFORCE_COVERAGE=yes
-        - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64:latest
-        - PLAT=aarch64
-        - PYTHON=cp39-cp39
+
 before_install:
   # - export PATH=/usr/lib/ccache:$PATH
   - ccache -s
@@ -96,14 +69,14 @@ install:
   - pip install -U tox codecov virtualenv
   - ci/get_hdf5_if_needed.sh
   - ls -lRa $HDF5_CACHE_DIR
-  #- if [[ $PLAT == aarch64 ]]; then uname -m; docker pull $DOCKER_IMAGE; fi
+  - if [[ $PLAT == aarch64 ]]; then uname -m; docker pull $DOCKER_IMAGE; fi
 script:
-  - tox
-  #- if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE /src/ci/build-arm64-wheels.sh; fi
+  #  - tox
+  - if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE /src/ci/build-arm64-wheels.sh; fi
 
 after_success:
   - python ci/upload_coverage.py
-  - if [ "$PLAT" == "aarch64" && "$TRAVIS_EVENT_TYPE" == "push" ]; then
+  - if [[ $PLAT == aarch64 && "$TRAVIS_EVENT_TYPE" == "push" ]]; then
         ANACONDA_ORG="multibuild-wheels-staging"
         pip install git+https://github.com/Anaconda-Server/anaconda-client;
         anaconda -t ${MULTIBUILD_WHEELS_STAGING_ACCESS} upload --force -u ${ANACONDA_ORG} ${TRAVIS_BUILD_DIR}/wheelhouse/*.whl;
