@@ -1,5 +1,7 @@
 #!/bin/bash
 set -e -u -x
+ls -lrt
+
 bash /src/ci/get_hdf5_arm64.sh
 
 cd /src/
