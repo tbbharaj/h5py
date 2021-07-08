@@ -7,7 +7,8 @@ bash /src/ci/get_hdf5_arm64.sh
 cd /src/
 
 # Create binary wheels
-/opt/python/${PYTHON}/bin/pip wheel /src/ -w wheelhouse/
+#/opt/python/${PYTHON}/bin/pip wheel /src/ -w wheelhouse/
+python3 setup.py bdist_wheel
 
 ls -lrt wheelhouse/
 
