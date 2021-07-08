@@ -35,7 +35,7 @@ matrix:
     #  os: linux-ppc64le
     
     - os: linux
-      #python: 3.7
+      python: 3.7
         #virt: vm
         #group: edge
       arch: arm64
@@ -51,21 +51,21 @@ matrix:
         - PLAT=aarch64
         #- PYTHON=cp36-cp36m
     - os: linux
-      python: 3.7
+      #     python: 3.7
         #virt: vm
         #group: edge
       arch: arm64
-      #install: if [[ $PLAT == aarch64 ]]; then uname -m; docker pull $DOCKER_IMAGE; fi
-      # script: if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE /src/ci/build-arm64-wheels.sh; fi
+      install: if [[ $PLAT == aarch64 ]]; then uname -m; docker pull $DOCKER_IMAGE; fi
+      script: if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE /src/ci/build-arm64-wheels.sh; fi
       #script: ci/build-arm64-wheels.sh
       env:
-        - TOXENV=py37-test-deps
+        #  - TOXENV=py37-test-deps
         #- HDF5_VERSION=1.10.5
         #- HDF5_DIR=$HDF5_CACHE_DIR/$HDF5_VERSION
         #- H5PY_ENFORCE_COVERAGE=yes
         - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64:latest
         - PLAT=aarch64
-        - PYTHON=cp37-cp37m
+          #- PYTHON=cp37-cp37m
     - os: linux
       python: 3.8
       #virt: vm
@@ -103,26 +103,15 @@ install:
   - pip install -U tox codecov virtualenv
   - ci/get_hdf5_if_needed.sh
   - ls -lRa $HDF5_CACHE_DIR
-  - if [[ $PLAT == aarch64 ]]; then uname -m; docker pull $DOCKER_IMAGE; fi
+  #- if [[ $PLAT == aarch64 ]]; then uname -m; docker pull $DOCKER_IMAGE; fi
 script:
   - tox
-  - if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE /src/ci/build-arm64-wheels.sh; fi
+  #- if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE /src/ci/build-arm64-wheels.sh; fi
 
 after_success:
   - python ci/upload_coverage.py
-
-deploy:
-  # deploy-release
-  - provider: script
-    script: pwd && ls dist;echo "deploy-release" && twine upload -u $PYPI_USER -p $PYPI_PASSWORD --skip-existing dist/*
-    skip_cleanup: true
-    on:
-      repo: ${TRAVIS_REPO_SLUG}
-      tags: true
-  # deploy-master
-  - provider: script
-    script: pwd && ls dist;echo "deploy-master" && echo "not implemented"
-    skip_cleanup: true
-    on:
-      repo: ${TRAVIS_REPO_SLUG}
-      branch: master
+  - if [ "$PLAT" == "aarch64" && "$TRAVIS_EVENT_TYPE" == "push" ]; then
+        ANACONDA_ORG="multibuild-wheels-staging"
+        pip install git+https://github.com/Anaconda-Server/anaconda-client;
+        anaconda -t ${MULTIBUILD_WHEELS_STAGING_ACCESS} upload --force -u ${ANACONDA_ORG} ${TRAVIS_BUILD_DIR}/wheelhouse/*.whl;
+    fi
