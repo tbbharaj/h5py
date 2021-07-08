@@ -38,11 +38,11 @@ matrix:
         #virt: vm
         #group: edge
       arch: arm64
-      install: if [[ $PLAT == aarch64 ]]; then uname -m; docker pull $DOCKER_IMAGE; fi
-      script: if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE /src/ci/build-arm64-wheels.sh; fi
+      #install: if [[ $PLAT == aarch64 ]]; then uname -m; docker pull $DOCKER_IMAGE; fi
+      # script: if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE /src/ci/build-arm64-wheels.sh; fi
       #script: ci/build-arm64-wheels.sh
       env:
-        #- TOXENV=py37-test-deps
+        - TOXENV=py37-test-deps
         #- HDF5_VERSION=1.10.5
         #- HDF5_DIR=$HDF5_CACHE_DIR/$HDF5_VERSION
         #- H5PY_ENFORCE_COVERAGE=yes
@@ -67,8 +67,10 @@ install:
   - pip install -U tox codecov virtualenv
   - ci/get_hdf5_if_needed.sh
   - ls -lRa $HDF5_CACHE_DIR
+  - if [[ $PLAT == aarch64 ]]; then uname -m; docker pull $DOCKER_IMAGE; fi
 script:
   - tox
+  - if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE /src/ci/build-arm64-wheels.sh; fi
 
 after_success:
   - python ci/upload_coverage.py
