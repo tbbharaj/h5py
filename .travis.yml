@@ -39,7 +39,7 @@ matrix:
       group: edge
       arch: arm64
       install: if [[ $PLAT == aarch64 ]]; then uname -m; docker pull $DOCKER_IMAGE; fi
-      script: if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE; ls -lrt; bash /src/ci/get_hdf5_arm64.sh;  python /src/setup.py sdist --dist-dir=wheelhouse; fi
+      script: if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE; ls -lrt; bash /src/ci/build-arm64-wheels.sh; fi
       env:
         - TOXENV=py37-test-deps
         - HDF5_VERSION=1.10.5
