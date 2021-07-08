@@ -44,22 +44,6 @@ matrix:
         - H5PY_ENFORCE_COVERAGE=yes
         - PLAT=aarch64
         - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64:latest
-    - os: linux
-      #     python: 3.7
-        #virt: vm
-        #group: edge
-      arch: arm64
-      install: if [[ $PLAT == aarch64 ]]; then uname -m; docker pull $DOCKER_IMAGE; fi
-      script: if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE /src/ci/build-arm64-wheels.sh; fi
-      #script: ci/build-arm64-wheels.sh
-      env:
-        #  - TOXENV=py37-test-deps
-        #- HDF5_VERSION=1.10.5
-        #- HDF5_DIR=$HDF5_CACHE_DIR/$HDF5_VERSION
-        #- H5PY_ENFORCE_COVERAGE=yes
-        - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64:latest
-        - PLAT=aarch64
-          #- PYTHON=cp37-cp37m
 
 before_install:
   # - export PATH=/usr/lib/ccache:$PATH
@@ -79,5 +63,5 @@ after_success:
   - if [[ $PLAT == aarch64 && "$TRAVIS_EVENT_TYPE" == "push" ]]; then
         ANACONDA_ORG="multibuild-wheels-staging"
         pip install git+https://github.com/Anaconda-Server/anaconda-client;
-        anaconda -t ${MULTIBUILD_WHEELS_STAGING_ACCESS} upload --force -u ${ANACONDA_ORG} ${TRAVIS_BUILD_DIR}/wheelhouse/*.whl;
+        anaconda -t ${MULTIBUILD_WHEELS_STAGING_ACCESS} upload --force -u ${ANACONDA_ORG} ${TRAVIS_BUILD_DIR}/wheelhouse/h5py-*.whl; 
     fi
