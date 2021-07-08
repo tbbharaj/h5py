@@ -8,7 +8,7 @@ cd /src/
 
 # Create binary wheels
 #/opt/python/${PYTHON}/bin/pip wheel /src/ -w wheelhouse/
-python3 setup.py bdist_wheel
+python setup.py bdist_wheel
 
 ls -lrt wheelhouse/
 
