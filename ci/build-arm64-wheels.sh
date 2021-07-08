@@ -1,12 +1,8 @@
 #!/bin/bash
 set -e -u -x
-ls -lrt
-#docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE
 #bash /src/ci/get_hdf5_arm64.sh
 
-#docker run -it -v $(pwd):/src quay.io/pypa/manylinux2014_aarch64:latest
-#cd /src/
-ls -lrt
+# Installing hdf5 dependency
 echo "Installing zlib with yum"
 export HDF5_VERSION=1.12.0
 export HDF5_DIR="/usr/local"
@@ -28,24 +24,22 @@ make install
 popd
 
 echo "Cleaning up unnecessary files"
-#rm -r hdf5-$HDF5_VERSION
-#rm hdf5-$HDF5_VERSION.tar.gz
+rm -r hdf5-$HDF5_VERSION
+rm hdf5-$HDF5_VERSION.tar.gz
 
-#yum -y erase zlib-devel
+yum -y erase zlib-devel
 
 
-
+# Building wheels
 cd /src/
-ls -lrt
 
 # Create binary wheels
-/opt/python/cp37-cp37m/bin/pip wheel /src/ -w wheelhouse/
-#/opt/python/${PYTHON}/bin/pip wheel /src/ -w wheelhouse/
-#python setup.py bdist_wheel
+#/opt/python/cp37-cp37m/bin/pip wheel /src/ -w wheelhouse/
+/opt/python/${PYTHON}/bin/pip wheel /src/ -w wheelhouse/
 
 ls -lrt wheelhouse/
 
 # Normalize resulting binaries to a common format
-for whl in wheelhouse/cassandra_driver-*.whl; do
+for whl in wheelhouse/h5py-*.whl; do
     auditwheel repair "$whl" -w wheelhouse/
 done
