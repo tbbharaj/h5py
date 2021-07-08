@@ -39,8 +39,8 @@ matrix:
         #group: edge
       arch: arm64
       install: if [[ $PLAT == aarch64 ]]; then uname -m; docker pull $DOCKER_IMAGE; fi
-        #script: if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE /src/ci/build-arm64-wheels.sh; fi
-      script: ci/build-arm64-wheels.sh
+      script: if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE /src/ci/build-arm64-wheels.sh; fi
+      #script: ci/build-arm64-wheels.sh
       env:
         #- TOXENV=py37-test-deps
         #- HDF5_VERSION=1.10.5

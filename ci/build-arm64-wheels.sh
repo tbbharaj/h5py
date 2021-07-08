@@ -4,8 +4,8 @@ ls -lrt
 #docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE
 #bash /src/ci/get_hdf5_arm64.sh
 
-docker run -it -v $(pwd):/src quay.io/pypa/manylinux2014_aarch64:latest
-cd /src/
+#docker run -it -v $(pwd):/src quay.io/pypa/manylinux2014_aarch64:latest
+#cd /src/
 ls -lrt
 echo "Installing zlib with yum"
 export HDF5_VERSION=1.12.0
