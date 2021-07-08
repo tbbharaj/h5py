@@ -1,6 +1,6 @@
 echo "Installing zlib with yum"
-HDF5_VERSION=1.12.0
-HDF5_DIR="/usr/local"
+export HDF5_VERSION=1.12.0
+export HDF5_DIR="/usr/local"
 yum -y install zlib-devel
 
 pushd /tmp
