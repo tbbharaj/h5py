@@ -1,5 +1,6 @@
 language: python
 
+services: docker
 dist: xenial
 
 notifications:
@@ -25,23 +26,28 @@ matrix:
     # needed to work around https://github.com/travis-ci/travis-ci/issues/4794
     # TODO: We should see if we can replace this with installing python via pyenv # based on toxenv
     # Test on ppc64le
-    - python: 3.7
-      env:
-      - TOXENV=py37-test-deps
-      - HDF5_VERSION=1.10.5
-      - HDF5_DIR=$HDF5_CACHE_DIR/$HDF5_VERSION
-      - H5PY_ENFORCE_COVERAGE=yes
-      os: linux-ppc64le
+    #- python: 3.7
+    #  env:
+    #  - TOXENV=py37-test-deps
+    #  - HDF5_VERSION=1.10.5
+    #  - HDF5_DIR=$HDF5_CACHE_DIR/$HDF5_VERSION
+    #  - H5PY_ENFORCE_COVERAGE=yes
+    #  os: linux-ppc64le
     - os: linux
       python: 3.7
       virt: vm
       group: edge
       arch: arm64
+      install: if [[ $PLAT == aarch64 ]]; then uname -m; docker pull $DOCKER_IMAGE; fi
+      script: if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE /src/ci/get_hdf5_arm64.sh; cd /src/; python setup.py sdist --dist-dir=wheelhouse; fi
       env:
         - TOXENV=py37-test-deps
         - HDF5_VERSION=1.10.5
         - HDF5_DIR=$HDF5_CACHE_DIR/$HDF5_VERSION
         - H5PY_ENFORCE_COVERAGE=yes
+        - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64
+        - PLAT=aarch64
+        - PYTHON=cp37-cp37m
     - os: linux
       python: 3.8
       virt: vm
