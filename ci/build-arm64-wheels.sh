@@ -37,7 +37,7 @@ cd /src/
 #/opt/python/cp37-cp37m/bin/pip wheel /src/ -w wheelhouse/
 #/opt/python/${PYTHON}/bin/pip wheel /src/ -w wheelhouse/
 for bindir in /opt/python/cp3*/bin; do
-    "$bindir/pip" wheel /netifaces/ -w wheelhouse/
+    "$bindir/pip" wheel /src/ -w wheelhouse/
 done
 
 ls -lrt wheelhouse/

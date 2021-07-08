@@ -35,7 +35,7 @@ matrix:
     #  os: linux-ppc64le
     
     - os: linux
-      #python: 3.6
+      python: 3.6
         #virt: vm
         #group: edge
       arch: arm64
