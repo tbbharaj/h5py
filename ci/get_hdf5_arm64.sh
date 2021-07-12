@@ -1,4 +1,3 @@
-echo "hi"
 echo "Installing zlib with yum"
 export HDF5_VERSION=1.12.0
 export HDF5_DIR="/usr/local"

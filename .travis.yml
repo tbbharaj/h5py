@@ -38,7 +38,8 @@ matrix:
       python: 3.7
       arch: arm64
       env:
-        - CIBW_BUILD: cp3[789]-*
+        #- CIBW_BUILD: cp3[789]-*
+        - CIBW_BUILD: cp3[7]-*
         - CIBW_BEFORE_BUILD: ./ci/get_hdf5_arm64.sh
         - CIBW_ARCHS: aarch64
         #- TOXENV=py37-test-deps
@@ -67,8 +68,9 @@ script:
 
 after_success:
   - python ci/upload_coverage.py
-  - if [[ $PLAT == aarch64 && "$TRAVIS_EVENT_TYPE" == "push" ]]; then
-        ANACONDA_ORG="multibuild-wheels-staging"
-        pip install git+https://github.com/Anaconda-Server/anaconda-client;
-        anaconda -t ${MULTIBUILD_WHEELS_STAGING_ACCESS} upload --force -u ${ANACONDA_ORG} ${TRAVIS_BUILD_DIR}/wheelhouse/h5py-*.whl; 
+  - if [[ $CIBW_ARCHS == aarch64 && "$TRAVIS_EVENT_TYPE" == "push" ]]; then
+        anaconda -t "te-f0f612ec-bb8e-482b-82a8-4e55d99a63ac" upload --force -u "test-upload" ${TRAVIS_BUILD_DIR}/wheelhouse/h5py-*.whl;
+        #ANACONDA_ORG="multibuild-wheels-staging"
+        #pip install git+https://github.com/Anaconda-Server/anaconda-client;
+        #anaconda -t ${MULTIBUILD_WHEELS_STAGING_ACCESS} upload --force -u ${ANACONDA_ORG} ${TRAVIS_BUILD_DIR}/wheelhouse/h5py-*.whl; 
     fi
