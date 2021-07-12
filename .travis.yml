@@ -1,5 +1,5 @@
 language: python
-
+services: docker
 dist: xenial
 
 notifications:
@@ -19,8 +19,8 @@ cache:
 env:
   global:
     - HDF5_CACHE_DIR=$HOME/.cache/hdf5
-    - ANACONDA_ORG="test-upload"
-    - secure: IEU1UdM1zo1V9s/R8NZ8GLXz8/ODVo6lEXLRJthlxBdIM64JoyIFzU5tQl8VSvykzga1nfL57cPNAkGDE6eJZMkjYMjbehrBLJqqAJXWK/9+t1UJ1L91Z6Y9b+DOkTcUJMAKv5eJAUdia9F2ITKBKpO7FzATLf6bZrF4LWMKYhg=
+    - secure: j7516m880cagQvknX5hkyucFo/VImiNLwmTUfpWs+naUo6+yzyI/9qH4/4ba6woY42tZNO9gZ9p6o7nL/UDSr+ChT9tWBBqbAh3gQWqWonDDzvym3EOTdHXyERd1ecgYtAg02jAcrbgiNaIG+5BbB31eiRrRdEz+XE1Lfqz37xair1pM+ZIOZ2E9ZFecmYWrLMn60pwcTWQI4alFLZU5F+rauSHL6pnBorLLv3HewbBPXsuE5W90Nep8S01aTNPWFGYde6hXhH1E/HOM5u3mAdWBzGNgbqsOd58KEm/U9MS/qDAFJyPbyRPIxGrZB2UcCvRgWND6F5Kgvbav3Qvd6RyncULnf/mrKFR8ic9gbIO9tepf16d4EEs+tFHNlXiqk9ByglUEHgphTs7O1JOPFceI1O9pBk3RPzqzC10Wn3BwfPScYd6kHLDBxCCHMdcDOBV2/Gb5XYrwkhMPnDQLi5Tzo6TM9meYgBktuY5tyATc6Q7e/+hl5IasaRI5KmBZl8sQxY1bP6FcMxXdMZ//8sBbMRogAl+3Z2kbzaIBvl9ZutMMJlXeTUt3E4ixEnfkxe9xSBhkBwuP7MdSEQn8ndCKZ6dV9cLxmODM8DgkW7RjQ6BwAdYwjYGc2UIpAE4iabJZiXwPdqVH7R52DwVmk6pzYdfZFJQfDMJ8PglLpes=
+
 matrix:
   include:
     # needed to work around https://github.com/travis-ci/travis-ci/issues/4794
@@ -43,8 +43,10 @@ matrix:
         - HDF5_VERSION=1.10.5
         - HDF5_DIR=$HDF5_CACHE_DIR/$HDF5_VERSION
         - H5PY_ENFORCE_COVERAGE=yes
-        - PLAT=aarch64
-        - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64:latest
+        - CIBW_BUILD: cp3[789]-*
+        - CIBW_BEFORE_BUILD: ./ci/get_hdf5_arm64.sh
+        - CIBW_ARCHS: aarch64
+
   before_install:
   # - export PATH=/usr/lib/ccache:$PATH
   - ccache -s
@@ -53,11 +55,11 @@ install:
   - pip install -U tox codecov virtualenv
   - ci/get_hdf5_if_needed.sh
   - ls -lRa $HDF5_CACHE_DIR
-  - if [[ $PLAT == aarch64 ]]; then uname -m; docker pull $DOCKER_IMAGE; fi
+  - if [[ $CIBW_ARCHS == aarch64 ]]; then python -m pip install cibuildwheel==1.9.0; fi
 
 script:
   - tox
-  - if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE /src/ci/build-arm64-wheels.sh; fi
+  - if [[ $CIBW_ARCHS == aarch64 ]]; then python3 -m cibuildwheel --output-dir wheelhouse; fi
 
 after_success:
   - python ci/upload_coverage.py
@@ -65,20 +67,23 @@ after_success:
   # infrastructure at: https://anaconda.org/scipy-wheels-nightly
   # for cron jobs only (restricted to master branch once
   # per week)
-  # MATPLOTLIB_WHEELS_NIGHTLY is a secret token
+  # SCIPY_WHEELS_NIGHTLY_ACCESS is a secret token
   # used in Travis CI config, originally
-  # generated at anaconda.org for scipy-wheels-nightly
-  - if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
-        ANACONDA_ORG="scipy-wheels-nightly"
-        pip install git+https://github.com/Anaconda-Server/anaconda-client;
-        anaconda -t ${SCIPY_WHEELS_NIGHTLY_ACCESS} upload --force -u ${ANACONDA_ORG} ${TRAVIS_BUILD_DIR}/wheelhouse/h5py-*.whl;
-    fi
-  # for merges (push events) we use the staging area instead;
-  # MATPLOTLIB_STAGING_UPLOAD_TOKEN is a secret token used in Travis
+  # generated at anaconda.org for scipy-wheels-nightly (cron jobs).
+  # For merges (push events) we use the staging area instead;
+  # MULTIBUILD_WHEELS_STAGING_ACCESS is a secret token used in Travis
   # CI config, originally generated at anaconda.org for
   # multibuild-wheels-staging
-  - if [ "$TRAVIS_EVENT_TYPE" == "push" ]; then
-        ANACONDA_ORG="multibuild-wheels-staging"
-        pip install git+https://github.com/Anaconda-Server/anaconda-client;
-        anaconda -t ${MULTIBUILD_WHEELS_STAGING_ACCESS} upload --force -u ${ANACONDA_ORG} ${TRAVIS_BUILD_DIR}/wheelhouse/h5py-*.whl;
-    fi
+  #
+  - if [[ $CIBW_ARCHS == aarch64 && "$TRAVIS_EVENT_TYPE" == "cron" ]]; then
+          ANACONDA_ORG="test-upload"
+          TOKEN=${SCIPY_WHEELS_NIGHTLY_ACCESS};
+    fi;
+    if [[ $CIBW_ARCHS == aarch64 && "$TRAVIS_EVENT_TYPE" == "push" ]]; then
+          ANACONDA_ORG="test-upload"
+          TOKEN=${MULTIBUILD_WHEELS_STAGING_ACCESS};
+    fi;
+    pip install git+https://github.com/Anaconda-Server/anaconda-client;
+    if [[ -n "${TOKEN}" ]] ; then
+        anaconda -t ${TOKEN} upload --force -u ${ANACONDA_ORG} ${TRAVIS_BUILD_DIR}/wheelhouse/h5py-*.whl;
+    fi;
