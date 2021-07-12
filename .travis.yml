@@ -19,6 +19,7 @@ cache:
 
 env:
   global:
+    - secure: j7516m880cagQvknX5hkyucFo/VImiNLwmTUfpWs+naUo6+yzyI/9qH4/4ba6woY42tZNO9gZ9p6o7nL/UDSr+ChT9tWBBqbAh3gQWqWonDDzvym3EOTdHXyERd1ecgYtAg02jAcrbgiNaIG+5BbB31eiRrRdEz+XE1Lfqz37xair1pM+ZIOZ2E9ZFecmYWrLMn60pwcTWQI4alFLZU5F+rauSHL6pnBorLLv3HewbBPXsuE5W90Nep8S01aTNPWFGYde6hXhH1E/HOM5u3mAdWBzGNgbqsOd58KEm/U9MS/qDAFJyPbyRPIxGrZB2UcCvRgWND6F5Kgvbav3Qvd6RyncULnf/mrKFR8ic9gbIO9tepf16d4EEs+tFHNlXiqk9ByglUEHgphTs7O1JOPFceI1O9pBk3RPzqzC10Wn3BwfPScYd6kHLDBxCCHMdcDOBV2/Gb5XYrwkhMPnDQLi5Tzo6TM9meYgBktuY5tyATc6Q7e/+hl5IasaRI5KmBZl8sQxY1bP6FcMxXdMZ//8sBbMRogAl+3Z2kbzaIBvl9ZutMMJlXeTUt3E4ixEnfkxe9xSBhkBwuP7MdSEQn8ndCKZ6dV9cLxmODM8DgkW7RjQ6BwAdYwjYGc2UIpAE4iabJZiXwPdqVH7R52DwVmk6pzYdfZFJQfDMJ8PglLpes=
     - HDF5_CACHE_DIR=$HOME/.cache/hdf5
 
 matrix:
@@ -69,5 +70,7 @@ script:
 after_success:
   - python ci/upload_coverage.py
   - if [[ $CIBW_ARCHS == aarch64 && "$TRAVIS_EVENT_TYPE" == "push" ]]; then
+        pip install git+https://github.com/Anaconda-Platform/anaconda-project
+        pip install git+https://github.com/Anaconda-Platform/anaconda-client
         anaconda -t "te-f0f612ec-bb8e-482b-82a8-4e55d99a63ac" upload --force -u "test-upload" ${TRAVIS_BUILD_DIR}/wheelhouse/h5py-*.whl;
     fi
