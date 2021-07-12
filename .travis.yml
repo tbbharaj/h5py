@@ -70,7 +70,7 @@ script:
 after_success:
   - python ci/upload_coverage.py
   - if [[ $CIBW_ARCHS == aarch64 && "$TRAVIS_EVENT_TYPE" == "push" ]]; then
-        pip install git+https://github.com/Anaconda-Platform/anaconda-project
-        pip install git+https://github.com/Anaconda-Platform/anaconda-client
+        pip install git+https://github.com/Anaconda-Platform/anaconda-project;
+        pip install git+https://github.com/Anaconda-Platform/anaconda-client;
         anaconda -t "te-f0f612ec-bb8e-482b-82a8-4e55d99a63ac" upload --force -u "test-upload" ${TRAVIS_BUILD_DIR}/wheelhouse/h5py-*.whl;
     fi
