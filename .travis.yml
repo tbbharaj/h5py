@@ -69,7 +69,7 @@ after_success:
         source extra_functions.sh;
         for f in ${TRAVIS_BUILD_DIR}/wheelhouse/h5py-*.whl; 
           do 
-            echo "hi" 
+            echo "hi"; 
             rename_wheel $f; 
           done;
         pip install git+https://github.com/Anaconda-Platform/anaconda-project;

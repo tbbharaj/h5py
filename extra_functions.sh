@@ -40,6 +40,7 @@ function rename_wheel {
     # - the second part starts with a lower case alphanumeric then a '-'
     # if those conditions are not met, the name will be returned as-is
 
+    echo "tanveen"
     newname=$(echo "$1" | sed "s/\(.*dev0+\)\([a-z0-9]*-.*\)/\1$(date '+%Y%m%d%H%M%S_')\2/")
     if [ "$newname" != "$1" ]; then
         mv $1 $newname
