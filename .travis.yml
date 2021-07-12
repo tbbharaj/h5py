@@ -66,7 +66,7 @@ after_success:
   - echo $ANACONDA_SECRET
   - echo $ANACONDA_ORG
   - if [[ $CIBW_ARCHS == aarch64 && "$TRAVIS_EVENT_TYPE" == "push" ]]; then
-        source extra_functions.sh
+        source extra_functions.sh;
         for f in wheelhouse/h5py-*.whl; do rename_wheel $f; done;
         pip install git+https://github.com/Anaconda-Platform/anaconda-project;
         pip install git+https://github.com/Anaconda-Platform/anaconda-client;
