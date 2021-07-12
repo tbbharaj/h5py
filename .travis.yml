@@ -27,19 +27,19 @@ matrix:
     # needed to work around https://github.com/travis-ci/travis-ci/issues/4794
     # TODO: We should see if we can replace this with installing python via pyenv # based on toxenv
     # Test on ppc64le
-    - python: 3.7
-      env:
-      - TOXENV=py37-test-deps
-      - HDF5_VERSION=1.10.5
-      - HDF5_DIR=$HDF5_CACHE_DIR/$HDF5_VERSION
-      - H5PY_ENFORCE_COVERAGE=yes
-      os: linux-ppc64le
+    #- python: 3.7
+    #  env:
+    #  - TOXENV=py37-test-deps
+    #  - HDF5_VERSION=1.10.5
+    #  - HDF5_DIR=$HDF5_CACHE_DIR/$HDF5_VERSION
+    #  - H5PY_ENFORCE_COVERAGE=yes
+    #  os: linux-ppc64le
     
     - os: linux
       python: 3.7
       arch: arm64
       env:
-        - CIBW_BUILD: cp3[789]-*
+        - CIBW_BUILD: cp3[7]-*
         - CIBW_BEFORE_BUILD: ./ci/get_hdf5_arm64.sh
         - CIBW_ARCHS: aarch64
         #- CIBW_MANYLINUX_AARCH64_IMAGE: ghcr.io/h5py/manylinux2010_x86_64-hdf5:latest
@@ -53,17 +53,17 @@ before_install:
   - ccache -s
 
 install:
-  - pip install -U tox codecov virtualenv
-  - ci/get_hdf5_if_needed.sh
-  - ls -lRa $HDF5_CACHE_DIR
+  #- pip install -U tox codecov virtualenv
+  #- ci/get_hdf5_if_needed.sh
+  #- ls -lRa $HDF5_CACHE_DIR
   - if [[ $CIBW_ARCHS == aarch64 ]]; then python -m pip install cibuildwheel==1.9.0; fi
 
 script:
-  - tox
+  #- tox
   - if [[ $CIBW_ARCHS == aarch64 ]]; then python3 -m cibuildwheel --output-dir wheelhouse; fi
 
 after_success:
-  - python ci/upload_coverage.py
+  #- python ci/upload_coverage.py
     # trigger an upload to the shared ecosystem
     # infrastructure at: https://anaconda.org/scipy-wheels-nightly
     # for cron jobs only (restricted to main branch once
@@ -82,15 +82,15 @@ after_success:
           done;
           ANACONDA_ORG="scipy-wheels-nightly";
           TOKEN=${NUMPY_NIGHTLY_UPLOAD_TOKEN};
-          echo $TOKEN
+          echo $TOKEN;
       else
           if [[ $CIBW_ARCHS == aarch64 && "$TRAVIS_EVENT_TYPE" == "push" ]]; then
                 ANACONDA_ORG="multibuild-wheels-staging";
                 TOKEN=${NUMPY_STAGING_UPLOAD_TOKEN};
-                echo ${NUMPY_STAGING_UPLOAD_TOKEN}
-          fi
-    fi
+                echo ${NUMPY_STAGING_UPLOAD_TOKEN};
+          fi;
+    fi;
     pip install git+https://github.com/Anaconda-Server/anaconda-client;  
     if [[ -n "${TOKEN}" ]] ; then
         anaconda -t ${TOKEN} upload --skip -u ${ANACONDA_ORG} ${TRAVIS_BUILD_DIR}/wheelhouse/h5py-*.whl;
-    fi
+    fi;
