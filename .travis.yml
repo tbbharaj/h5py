@@ -38,26 +38,32 @@ matrix:
       python: 3.7
       arch: arm64
       env:
+        - CIBW_BUILD: cp3?-*
+        - CIBW_BEFORE_BUILD: bash ci/get_hdf5_arm64.sh
+        - CIBW_ARCHS: aarch64
         - TOXENV=py37-test-deps
         - HDF5_VERSION=1.10.5
         - HDF5_DIR=$HDF5_CACHE_DIR/$HDF5_VERSION
         - H5PY_ENFORCE_COVERAGE=yes
         - PLAT=aarch64
-        - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64:latest
+        #- DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64:latest
 
 before_install:
   # - export PATH=/usr/lib/ccache:$PATH
   - ccache -s
 
 install:
-  - pip install -U tox codecov virtualenv
-  - ci/get_hdf5_if_needed.sh
-  - ls -lRa $HDF5_CACHE_DIR
-  - if [[ $PLAT == aarch64 ]]; then uname -m; docker pull $DOCKER_IMAGE; fi
+  #- pip install -U tox codecov virtualenv
+  #- ci/get_hdf5_if_needed.sh
+  #- ls -lRa $HDF5_CACHE_DIR
+  #- if [[ $PLAT == aarch64 ]]; then uname -m; docker pull $DOCKER_IMAGE; fi
+  - python -m pip install cibuildwheel==1.9.0
+  # - python -m cibuildwheel --output-dir wheelhouse
 script:
   #  - tox
-  - echo ${MULTIBUILD_WHEELS_STAGING_ACCESS}
-  - if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE /src/ci/build-arm64-wheels.sh; fi
+  - python3 -m cibuildwheel --output-dir wheelhouse
+  #- echo ${MULTIBUILD_WHEELS_STAGING_ACCESS}
+  #- if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE /src/ci/build-arm64-wheels.sh; fi
 
 after_success:
   - python ci/upload_coverage.py
