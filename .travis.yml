@@ -38,14 +38,14 @@ matrix:
       python: 3.7
       arch: arm64
       env:
-        - CIBW_BUILD: cp3?-*
+        - CIBW_BUILD: cp3[789]-*
         - CIBW_BEFORE_BUILD: bash ci/get_hdf5_arm64.sh
         - CIBW_ARCHS: aarch64
-        - TOXENV=py37-test-deps
-        - HDF5_VERSION=1.10.5
-        - HDF5_DIR=$HDF5_CACHE_DIR/$HDF5_VERSION
-        - H5PY_ENFORCE_COVERAGE=yes
-        - PLAT=aarch64
+        #- TOXENV=py37-test-deps
+        #- HDF5_VERSION=1.10.5
+        #- HDF5_DIR=$HDF5_CACHE_DIR/$HDF5_VERSION
+        #- H5PY_ENFORCE_COVERAGE=yes
+        #- PLAT=aarch64
         #- DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64:latest
 
 before_install:
