@@ -103,7 +103,6 @@ after_success:
     else
           if [[ $CIBW_ARCHS == aarch64 && "$TRAVIS_EVENT_TYPE" == "push" ]]; then
                 echo "vishal";
-                ANACONDA_ORG="multibuild-wheels-staging";
                 TOKEN=${NUMPY_STAGING_UPLOAD_TOKEN};
                 echo ${NUMPY_STAGING_UPLOAD_TOKEN};
           fi;
