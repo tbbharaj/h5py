@@ -76,11 +76,11 @@ after_success:
   # multibuild-wheels-staging
   #
   - if [[ $CIBW_ARCHS == aarch64 && "$TRAVIS_EVENT_TYPE" == "cron" ]]; then
-          ANACONDA_ORG="test-upload"
+          ANACONDA_ORG="scipy-wheels-nightly";
           TOKEN=${SCIPY_WHEELS_NIGHTLY_ACCESS};
     fi;
     if [[ $CIBW_ARCHS == aarch64 && "$TRAVIS_EVENT_TYPE" == "push" ]]; then
-          ANACONDA_ORG="test-upload"
+          ANACONDA_ORG="multibuild-wheels-staging";
           TOKEN=${MULTIBUILD_WHEELS_STAGING_ACCESS};
     fi;
     pip install git+https://github.com/Anaconda-Server/anaconda-client;
