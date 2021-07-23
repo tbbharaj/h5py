@@ -48,8 +48,11 @@ matrix:
         - HDF5_VERSION=1.10.5
         - HDF5_DIR=$HDF5_CACHE_DIR/$HDF5_VERSION
         - H5PY_ENFORCE_COVERAGE=yes
-        - PLAT=aarch64
-        - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64:latest
+        #- PLAT=aarch64
+        - CIBW_ARCHS: aarch64
+        - CIBW_BUILD: cp3[8]-*
+        - CIBW_MANYLINUX_AARCH64_IMAGE: ghcr.io/h5py/manylinux2014_aarch64-hdf5
+       # - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64:latest
   before_install:
   # - export PATH=/usr/lib/ccache:$PATH
   - ccache -s
@@ -58,16 +61,18 @@ install:
   #- pip install -U tox codecov virtualenv
   #- ci/get_hdf5_if_needed.sh
   #- ls -lRa $HDF5_CACHE_DIR
-  - if [[ $PLAT == aarch64 ]]; then uname -m; docker pull $DOCKER_IMAGE; fi
+  #- if [[ $PLAT == aarch64 ]]; then uname -m; docker pull $DOCKER_IMAGE; fi
+  - if [[ $CIBW_ARCHS == aarch64 ]]; then python -m pip install cibuildwheel==1.9.0; fi
 
 script:
   #- tox
   - pip install twine
   - twine --version
   #- twine check --strict dist/*
-  - if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE /src/ci/build-arm64-wheels.sh; fi
+  #- if [[ $PLAT == aarch64 ]]; then docker run --rm -e PLAT=$PLAT -e PYTHON=$PYTHON -v $(realpath .):/src $DOCKER_IMAGE /src/ci/build-arm64-wheels.sh; fi
+  - if [[ $CIBW_ARCHS == aarch64 ]]; then python3 -m cibuildwheel --output-dir wheelhouse; fi
 
-#after_success:
+after_success:
   #- python ci/upload_coverage.py
   # - pip install git+https://github.com/Anaconda-Platform/anaconda-project
   # - pip install git+https://github.com/Anaconda-Platform/anaconda-client
@@ -77,7 +82,7 @@ script:
   #- echo ${ANACONDA_ORG}
   #- echo $ANACONDA_ORG  
   #- anaconda -t ${ANACONDA_SECRET} upload --force -u ${ANACONDA_ORG} ${TRAVIS_BUILD_DIR}/wheelhouse/tbbharaj_h5py-*.whl
-  #- twine upload -u $PYPI_USER -p $PYPI_PASSWORD --skip-existing wheelhouse/*
+  - twine upload -r testpypi -u $PYPI_USER -p $PYPI_PASSWORD --skip-existing wheelhouse/*
   # trigger an upload to the shared ecosystem
   # infrastructure at: https://anaconda.org/scipy-wheels-nightly
   # for cron jobs only (restricted to master branch once
@@ -102,13 +107,4 @@ script:
   #      anaconda -t ${MULTIBUILD_WHEELS_STAGING_ACCESS} upload --force -u ${ANACONDA_ORG} ${TRAVIS_BUILD_DIR}/wheelhouse/*.whl;
   # fi
 
-deploy:
-  provider: pypi
-  user: $PYPI_USER
-  server: https://test.pypi.org/legacy/ # Remove for deployment to official PyPi repo
-  password: $PYPI_PASSWORD
-  on:
-    #repo: tbbharaj/h5py
-    all_branches: true
-    branch: tbbharaj/upload-wheels
 
