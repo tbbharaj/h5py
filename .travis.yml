@@ -42,7 +42,7 @@ matrix:
         - HDF5_VERSION=1.10.5
         - HDF5_DIR=$HDF5_CACHE_DIR/$HDF5_VERSION
         - H5PY_ENFORCE_COVERAGE=yes
-        - CIBW_BUILD: cp310-*
+        - CIBW_BUILD: cp310-cp310
         - CIBW_MANYLINUX_AARCH64_IMAGE: ghcr.io/h5py/manylinux2014_aarch64-hdf5
         - CIBW_ARCHS: aarch64
 
